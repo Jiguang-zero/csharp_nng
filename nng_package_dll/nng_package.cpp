@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-nng_socket * ConnectRequestSocket(const std::string& url) {
+nng_socket * ConnectRequestSocket(const char *url) {
     auto * socket = new nng_socket();
     // Request type.
     if (const int res = nng_req0_open(socket); res != 0) {
@@ -10,7 +10,7 @@ nng_socket * ConnectRequestSocket(const std::string& url) {
         return nullptr;
     }
 
-    if (nng_dial(*socket, url.c_str(), nullptr, 0) != 0) {
+    if (nng_dial(*socket, url, nullptr, 0) != 0) {
         nng_socket_close(*socket);
         Release(socket);
         return nullptr;
@@ -48,7 +48,7 @@ const char * GetErrorString(const int rv) {
     return nullptr;
 }
 
-int Send(const nng_socket *socket, const char *data, const size_t size) {
+int send(const nng_socket *socket, const char *data, const size_t size) {
     nng_msg* msg = nullptr;
 
     // ReSharper disable once CppDFAMemoryLeak
@@ -74,7 +74,7 @@ int Send(const nng_socket *socket, const char *data, const size_t size) {
 const char * GetReceiveMessage(const nng_socket *socket, const char *request, const int request_size) {
     nng_msg *msg = nullptr;
 
-    int rv = Send(socket, request, request_size);
+    int rv = send(socket, request, request_size);
     if (rv != 0) {
         return nullptr;
     }

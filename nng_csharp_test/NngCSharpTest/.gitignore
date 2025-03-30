@@ -1,0 +1,7 @@
+# build, target, bin, obj
+obj/*
+build/*
+bin/*
+
+# vs
+.vs/
