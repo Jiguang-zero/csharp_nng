@@ -1,7 +1,6 @@
 #ifndef NNG_PACKAGE_DLL_LIBRARY_H
 #define NNG_PACKAGE_DLL_LIBRARY_H
 
-#include <string>
 #include <nng/nng.h>
 
 #ifdef _WIN32
@@ -16,10 +15,10 @@
 
 /**
  * connect url
- * @param url const std::string&
+ * @param url const char*
  * @return Pointer Address. nng_socket*
  */
-extern "C" NNG_API nng_socket* ConnectRequestSocket(const std::string& url);
+extern "C" NNG_API nng_socket* ConnectRequestSocket(const char *url);
 
 /**
  * Set sending timeout.
@@ -68,7 +67,14 @@ extern "C" NNG_API void Release(const nng_socket* socket);
  */
 extern "C" NNG_API const char* GetErrorString(int rv);
 
-int Send(const nng_socket* socket, const char* data, size_t size);
+/**
+ * Send request with the length [size].
+ * @param socket const nng_socket*
+ * @param data
+ * @param size
+ * @return return the result of sending.
+ */
+int send(const nng_socket* socket, const char* data, size_t size);
 
 /**
  *
