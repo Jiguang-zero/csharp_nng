@@ -3,6 +3,99 @@
 #include <iostream>
 #include <nng/protocol/reqrep0/req.h>
 
+Nng * Nng::NewNngRequest(const char *url) {
+    auto* instance = new Nng();
+    if (!instance->StartRequestListening(url)) {
+        delete instance;
+        return nullptr;
+    }
+
+    return instance;
+}
+
+void Nng::FreeNng(const Nng *nng) {
+    delete nng;
+}
+
+char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int requestSize) {
+    std::lock_guard<std::mutex> lock(operationMutex);
+    char * response = nullptr;
+
+    try {
+        nng_msg *msg = nullptr;
+
+        // ReSharper disable once CppDFAMemoryLeak
+        if (nng_msg_alloc(&msg, 0) != 0) {
+            // ReSharper disable once CppDFAMemoryLeak
+            return nullptr;
+        }
+
+        if (nng_msg_append(msg, request, requestSize) != 0) {
+            nng_msg_free(msg);
+            // ReSharper disable once CppDFAMemoryLeak
+            return nullptr;
+        }
+
+        if (nng_sendmsg(*socket, msg, 0) != 0) {
+            nng_msg_free(msg);
+            // ReSharper disable once CppDFAMemoryLeak
+            return nullptr;
+        }
+
+        if (nng_recvmsg(*socket, &msg, 0) == 0) {
+            const size_t len = nng_msg_len(msg);
+            const void* body = nng_msg_body(msg);
+
+            // 分配内存并复制响应内容
+            response = new char[len + 1];
+            memcpy(response, body, len);
+            response[len] = '\0'; // 添加字符串结束符
+            nng_msg_free(msg);
+        }
+
+        // ReSharper disable once CppDFAMemoryLeak
+        return response;
+    }
+    catch (...) {
+        //TODO: Log the error.
+        if (response) {
+            delete response;
+        }
+        return nullptr;
+    }
+}
+
+bool Nng::StartRequestListening(const char *url) {
+    std::lock_guard<std::mutex> lock(operationMutex);
+    if (nng_req0_open(socket) /* != 0 */) {
+        CloseConnection();
+        return false;
+    }
+    nng_dialer dialer{};
+    if (nng_dialer_create(&dialer, *socket, url) != 0) {
+        CloseConnection();
+        return false;
+    }
+    nng_dialer_start(dialer, NNG_FLAG_NONBLOCK);
+    return true;
+}
+
+void Nng::CloseConnection() {
+    std::lock_guard<std::mutex> lock(operationMutex);
+    if (socket) {
+        nng_socket_close(*socket);
+        delete socket;
+    }
+}
+
+Nng::~Nng() {
+    CloseConnection();
+}
+
+Nng::Nng() {
+    socket = new nng_socket();
+}
+
 nng_socket * ConnectRequestSocket(const char *url) {
     auto * socket = new nng_socket();
     // Request type.

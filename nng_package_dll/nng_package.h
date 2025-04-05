@@ -1,7 +1,45 @@
 #ifndef NNG_PACKAGE_DLL_LIBRARY_H
 #define NNG_PACKAGE_DLL_LIBRARY_H
 
+#include <mutex>
 #include <nng/nng.h>
+
+class Nng {
+public:
+ // create a nng instance of request type.
+ static Nng* NewNngRequest(const char* url);
+
+ // free memory
+ static void FreeNng(const Nng* nng);
+
+ /**
+  *
+  * @param request The request.
+  * @param requestSize The length of the request.
+  * @return return the response if successful and nullptr if not.
+  */
+ char* SendRequestAndGetResponse(const unsigned char* request, int requestSize);
+
+ Nng(const Nng&) = delete;
+ bool operator = (const Nng&) = delete;
+
+ // Start request listening. dialer
+ bool StartRequestListening(const char* url);
+
+ // Disconnect the socket.
+ void CloseConnection();
+
+ ~Nng();
+
+private:
+ Nng();
+
+ // Any operation about socket.
+ // Including connection, disconnection, send, receive and or so.
+ std::mutex operationMutex;
+
+ nng_socket * socket;
+};
 
 #ifdef _WIN32
     #ifdef _NNG_EXPORTS
