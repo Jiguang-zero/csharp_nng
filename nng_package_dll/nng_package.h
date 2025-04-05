@@ -56,7 +56,7 @@ private:
  * @param url const char*
  * @return Pointer Address. nng_socket*
  */
-extern "C" NNG_API nng_socket* ConnectRequestSocket(const char *url);
+extern "C" NNG_API Nng *ConnectRequestSocket(const char *url);
 
 /**
  * Set sending timeout.
@@ -93,9 +93,18 @@ extern "C" NNG_API int SetSocketReConnectMaxTime(const nng_socket* socket, int m
 /**
 /**
  * Close Connect
- * @param socket nng_socket*
+ * @param nng nng_socket*
  */
-extern "C" NNG_API void Release(const nng_socket* socket);
+extern "C" NNG_API void Release(const Nng *nng);
+
+/**
+ * Get response with the request.
+ * @param nng
+ * @param request
+ * @param requestSize
+ * @return intptr_t, which can cast to unsigned char*.
+ */
+extern "C" NNG_API intptr_t GetResponseWithRequest(Nng * nng, const unsigned char* request, int requestSize);
 
 /**
  * We will get the result state when we call connect, bind, receive, send, etc...

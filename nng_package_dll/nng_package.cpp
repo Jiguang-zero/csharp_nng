@@ -96,24 +96,9 @@ Nng::Nng() {
     socket = new nng_socket();
 }
 
-nng_socket * ConnectRequestSocket(const char *url) {
-    auto * socket = new nng_socket();
-    // Request type.
-    int rv = nng_req0_open(socket);
-    if (rv != 0) {
-        Release(socket);
-        return nullptr;
-    }
-
-    nng_dialer dialer{};
-    rv = nng_dialer_create(&dialer, *socket, url);
-    if (rv != 0) {
-        Release(socket);
-        return nullptr;
-    }
-    nng_dialer_start(dialer, NNG_FLAG_NONBLOCK);
-
-    return socket;
+Nng *ConnectRequestSocket(const char *url) {
+    auto * nng = Nng::NewNngRequest(url);
+    return nng;
 }
 
 int SetSocketSendTimeOut(const nng_socket *socket, const int milliseconds) {
@@ -132,9 +117,16 @@ int SetSocketReConnectMaxTime(const nng_socket *socket, const int milliseconds) 
     return nng_socket_set_int(*socket, NNG_OPT_RECONNMAXT, milliseconds);
 }
 
-void Release(const nng_socket *socket) {
-    nng_socket_close(*socket);
-    delete socket;
+void Release(const Nng *nng) {
+    delete nng;
+}
+
+intptr_t GetResponseWithRequest(Nng *nng, const unsigned char *request, const int requestSize) {
+    auto * response = nng->SendRequestAndGetResponse(request, requestSize);
+    if (!response) {
+        return 0;
+    }
+    return reinterpret_cast<intptr_t>(response);
 }
 
 const char * GetErrorString(const int rv) {
