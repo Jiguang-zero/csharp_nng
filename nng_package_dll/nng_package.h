@@ -1,7 +1,45 @@
 #ifndef NNG_PACKAGE_DLL_LIBRARY_H
 #define NNG_PACKAGE_DLL_LIBRARY_H
 
+#include <mutex>
 #include <nng/nng.h>
+
+class Nng {
+public:
+ // create a nng instance of request type.
+ static Nng* NewNngRequest(const char* url);
+
+ // free memory
+ static void FreeNng(const Nng* nng);
+
+ /**
+  *
+  * @param request The request.
+  * @param requestSize The length of the request.
+  * @return return the response if successful and nullptr if not.
+  */
+ char* SendRequestAndGetResponse(const unsigned char* request, int requestSize);
+
+ Nng(const Nng&) = delete;
+ bool operator = (const Nng&) = delete;
+
+ // Start request listening. dialer
+ bool StartRequestListening(const char* url);
+
+ // Disconnect the socket.
+ void CloseConnection();
+
+ ~Nng();
+
+private:
+ Nng();
+
+ // Any operation about socket.
+ // Including connection, disconnection, send, receive and or so.
+ std::mutex operationMutex;
+
+ nng_socket * socket;
+};
 
 #ifdef _WIN32
     #ifdef _NNG_EXPORTS
@@ -18,7 +56,7 @@
  * @param url const char*
  * @return Pointer Address. nng_socket*
  */
-extern "C" NNG_API nng_socket* ConnectRequestSocket(const char *url);
+extern "C" NNG_API Nng *ConnectRequestSocket(const char *url);
 
 /**
  * Set sending timeout.
@@ -55,9 +93,18 @@ extern "C" NNG_API int SetSocketReConnectMaxTime(const nng_socket* socket, int m
 /**
 /**
  * Close Connect
- * @param socket nng_socket*
+ * @param nng nng_socket*
  */
-extern "C" NNG_API void Release(const nng_socket* socket);
+extern "C" NNG_API void Release(const Nng *nng);
+
+/**
+ * Get response with the request.
+ * @param nng
+ * @param request
+ * @param requestSize
+ * @return intptr_t, which can cast to unsigned char*.
+ */
+extern "C" NNG_API intptr_t GetResponseWithRequest(Nng * nng, const unsigned char* request, int requestSize);
 
 /**
  * We will get the result state when we call connect, bind, receive, send, etc...
