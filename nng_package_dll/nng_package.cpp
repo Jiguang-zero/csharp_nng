@@ -20,10 +20,9 @@ void Nng::FreeNng(const Nng *nng) {
 char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int requestSize) {
     std::lock_guard<std::mutex> lock(operationMutex);
     char * response = nullptr;
+    nng_msg *msg = nullptr;
 
     try {
-        nng_msg *msg = nullptr;
-
         // ReSharper disable once CppDFAMemoryLeak
         if (nng_msg_alloc(&msg, 0) != 0) {
             // ReSharper disable once CppDFAMemoryLeak
@@ -51,6 +50,8 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
             memcpy(response, body, len);
             response[len] = '\0'; // 添加字符串结束符
             nng_msg_free(msg);
+        } else {
+            nng_msg_free(msg);
         }
 
         // ReSharper disable once CppDFAMemoryLeak
@@ -58,9 +59,8 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
     }
     catch (...) {
         //TODO: Log the error.
-        if (response) {
-            delete response;
-        }
+        nng_msg_free(msg);
+        delete[] response;
         return nullptr;
     }
 }
