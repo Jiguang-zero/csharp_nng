@@ -116,4 +116,6 @@ extern "C" NNG_API intptr_t GetResponseWithRequest(Nng * nng, const unsigned cha
  */
 extern "C" NNG_API const char* GetErrorString(int rv);
 
+extern "C" NNG_API void FreeMessage(const char* msg);
+
 #endif //NNG_PACKAGE_DLL_LIBRARY_H

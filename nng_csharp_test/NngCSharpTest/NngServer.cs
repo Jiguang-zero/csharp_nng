@@ -29,6 +29,10 @@ namespace NngCSharpTest
         [DllImport("packaged_nng.dll", EntryPoint = "GetResponseWithRequest",
             CallingConvention = CallingConvention.StdCall)]
         public extern static IntPtr Send(IntPtr socket, byte[] msg, int msg_size);
+        
+        [DllImport("packaged_nng.dll", EntryPoint = "FreeMessage",
+            CallingConvention = CallingConvention.StdCall)]
+        public extern static void FreeMessage(IntPtr str);
 
         public static string GetMessage(IntPtr response)
         {
@@ -37,8 +41,9 @@ namespace NngCSharpTest
                 return String.Empty;
             }
 
-            string str = Marshal.PtrToStringUni(response);
-            Marshal.FreeHGlobal(response);
+            string str = Marshal.PtrToStringAnsi(response);
+            FreeMessage(response);
+            //Marshal.FreeHGlobal(response);
             return str;
         }
     }

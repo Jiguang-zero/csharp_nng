@@ -142,3 +142,7 @@ const char * GetErrorString(const int rv) {
     }
     return nullptr;
 }
+
+void FreeMessage(const char *msg) {
+    delete msg;
+}

@@ -36,27 +36,33 @@ namespace NngCSharpTest
                 return;
             }
 
-            if (NngServer.SetSocketReceiveTimeOut(api, 1000) != 0)
+            bool flag = true;
+
+            for (int i = 0; i < 1000000; i++)
             {
-                MessageBox.Show("Set ReceiveTimeOut Failed");
-                NngServer.Release(api);
-                return;
+                string message = "test";
+
+                // 将字符串转换为字节数组
+                byte[] msgBytes = Encoding.UTF8.GetBytes(message);
+
+                // 调用Send函数发送消息
+                IntPtr result = NngServer.Send(api, msgBytes, msgBytes.Length);
+                if (result == IntPtr.Zero)
+                {
+                    MessageBox.Show("收不到消息");
+                    return;
+                }
+
+                var msg = NngServer.GetMessage(result);
+                Console.WriteLine(msg);
+                if (flag)
+                {
+                    MessageBox.Show(msg);
+                    flag = false;
+                }
             }
-
-            string message = "test";
-
-            // 将字符串转换为字节数组
-            byte[] msgBytes = Encoding.UTF8.GetBytes(message);
-
-            // 调用Send函数发送消息
-            IntPtr result = NngServer.Send(api, msgBytes, msgBytes.Length);
-            if (result != IntPtr.Zero)
-            {
-                MessageBox.Show("收不到消息");
-                return;
-            }
-
-            MessageBox.Show(NngServer.GetMessage(result));
+           
+            NngServer.Release(api);
         }
     }
 }
