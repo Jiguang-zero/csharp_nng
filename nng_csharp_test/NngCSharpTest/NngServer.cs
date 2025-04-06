@@ -12,7 +12,7 @@ namespace NngCSharpTest
     {
         [DllImport("packaged_nng.dll", EntryPoint = "ConnectRequestSocket",
             CallingConvention = CallingConvention.StdCall)]
-        public extern static IntPtr ConnectUrl(IntPtr url);
+        public extern static IntPtr ConnectRequestSocket(string url);
 
         [DllImport("packaged_nng.dll", EntryPoint = "SetSocketSendTimeOut",
             CallingConvention = CallingConvention.StdCall)]
@@ -26,8 +26,20 @@ namespace NngCSharpTest
             CallingConvention = CallingConvention.StdCall)]
         public extern static void Release(IntPtr socket);
 
-        [DllImport("packaged_nng.dll", EntryPoint = "GetReceiveMessage",
+        [DllImport("packaged_nng.dll", EntryPoint = "GetResponseWithRequest",
             CallingConvention = CallingConvention.StdCall)]
         public extern static IntPtr Send(IntPtr socket, byte[] msg, int msg_size);
+
+        public static string GetMessage(IntPtr response)
+        {
+            if (response == IntPtr.Zero)
+            {
+                return String.Empty;
+            }
+
+            string str = Marshal.PtrToStringUni(response);
+            Marshal.FreeHGlobal(response);
+            return str;
+        }
     }
 }

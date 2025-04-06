@@ -27,26 +27,11 @@ namespace NngCSharpTest
         private void Button1_Click(object sender, EventArgs e)
         {
             string url = "tcp://127.0.0.1:3001";
-            byte[] urlBytes = Encoding.UTF8.GetBytes(url);
+            IntPtr api = NngServer.ConnectRequestSocket(url);
 
-            // 分配非托管内存以null结尾的字符串
-            IntPtr urlPtr = Marshal.AllocHGlobal(urlBytes.Length + 1);
-            Marshal.Copy(urlBytes, 0, urlPtr, urlBytes.Length);
-
-            // 设置null终止符
-            Marshal.WriteByte(urlPtr, urlBytes.Length, 0);
-
-            IntPtr api = NngServer.ConnectUrl(urlPtr);
             if (api == IntPtr.Zero)
             {
                 MessageBox.Show("Connect Failed");
-                NngServer.Release(api);
-                return;
-            }
-
-            if (NngServer.SetSocketSendTimeOut(api, 1000) != 0)
-            {
-                MessageBox.Show("Set SendTimeOut Failed");
                 NngServer.Release(api);
                 return;
             }
@@ -68,11 +53,10 @@ namespace NngCSharpTest
             if (result != IntPtr.Zero)
             {
                 MessageBox.Show("收不到消息");
-                NngServer.Release(api);
                 return;
             }
 
-            NngServer.Release(api);
+            MessageBox.Show(NngServer.GetMessage(result));
         }
     }
 }
