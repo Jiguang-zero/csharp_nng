@@ -4,6 +4,7 @@
 
 #include "client_test.h"
 #include "nng_package.h"
+#include "util/logger/Logger.h"
 
 #include <iostream>
 #include <string>
@@ -11,14 +12,24 @@
 #include <thread>
 
 int main() {
+    testLog();
+
+    return 0;
+}
+
+void testLog() {
+    Logger::changeFilePath(utils::origin, "nng.log");
+    LOG << "Test" << utils::endl;
+    LOG_LINE("hello");
+}
+
+void testNng() {
     std::thread f1(testWithPort, 3001, 100000, 0);
     std::thread f2(testWithPort, 3002, 34533, 520);
     std::thread f3(testWithPort, 3003, 353134, 1200);
     f1.join();
     f2.join();
     f3.join();
-
-    return 0;
 }
 
 void testWithPort(const int port, const int times, const int interval) {

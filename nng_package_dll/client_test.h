@@ -5,6 +5,9 @@
 #ifndef CLIENT_TEST_H
 #define CLIENT_TEST_H
 
+void testLog();
+void testNng();
+
 // port: nng port
 // times: the times of the loop
 // interval: the interval of each iterator
