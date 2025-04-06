@@ -31,7 +31,7 @@ public:
 
  ~Nng();
 
- int SetReceiveTimeOut(int millisecond) const;
+ int SetReceiveTimeOut(int millisecond);
 
 private:
  Nng();

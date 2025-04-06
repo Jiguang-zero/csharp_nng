@@ -92,7 +92,7 @@ Nng::~Nng() {
     CloseConnection();
 }
 
-int Nng::SetReceiveTimeOut(const int millisecond) const {
+int Nng::SetReceiveTimeOut(const int millisecond) {
     return SetSocketReceiveTimeOut(socket, millisecond);
 }
 
@@ -102,6 +102,8 @@ Nng::Nng() {
 
 Nng *ConnectRequestSocket(const char *url) {
     auto * nng = Nng::NewNngRequest(url);
+    nng->SetReceiveTimeOut(5000);
+
     return nng;
 }
 
