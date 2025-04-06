@@ -1,8 +1,12 @@
 import pynng
 import threading
+import sys
 
+
+i = 0
 
 def handle_request(sock):
+    global i
     while True:
         try:
             # 接收请求
@@ -12,7 +16,8 @@ def handle_request(sock):
             # 检查请求内容
             if request == "test":
                 # 发送响应
-                response = "Here is the test server"
+                response = "test: " + str(i)
+                i += 1
                 sock.send(response.encode('utf-8'))
         except pynng.Timeout:
             continue
@@ -31,8 +36,13 @@ def start_server(address):
 
 
 if __name__ == "__main__":
+    len_argv = len(sys.argv)
+    if len_argv != 2:
+        print("The length of argv is not 2 but " + str(len_argv))
+        sys.exit(-1)
+
     # 定义服务器地址和端口
-    server_address = 'tcp://127.0.0.1:3001'
+    server_address = 'tcp://127.0.0.1:' + sys.argv[1]
     
     # 启动服务器
     server_thread = threading.Thread(target=start_server, args=(server_address,))
