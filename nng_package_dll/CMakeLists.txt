@@ -3,12 +3,25 @@ project(nng_package_dll)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories("${CMAKE_SOURCE_DIR}/include")
-link_directories("${CMAKE_SOURCE_DIR}/library/nng")
+# Custom library dir
+set(MY_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/library")
 
+include_directories("${CMAKE_SOURCE_DIR}/include")
+link_directories("${MY_LIBRARY_DIR}/nng")
+
+add_executable(client_test nng_package.cpp client_test.cpp)
+target_link_libraries(client_test nng)
+
+# packaged_nng.dll
 add_definitions(-D_NNG_EXPORTS)
 add_library(packaged_nng SHARED nng_package.cpp)
 set_target_properties(packaged_nng PROPERTIES
         LIBRARY_OUTPUT_NAME "packaged_nng"
 )
 target_link_libraries(packaged_nng nng)
+
+configure_file(
+        "${MY_LIBRARY_DIR}/nng/nng.dll"
+        "${CMAKE_BINARY_DIR}/nng.dll"
+        COPYONLY
+)
