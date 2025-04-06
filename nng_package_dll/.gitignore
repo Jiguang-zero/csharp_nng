@@ -4,3 +4,7 @@ cmake-build-release/
 
 ## clion
 .idea/
+
+## vs
+.vs
+out/
