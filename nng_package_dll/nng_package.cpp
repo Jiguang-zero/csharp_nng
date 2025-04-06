@@ -92,6 +92,10 @@ Nng::~Nng() {
     CloseConnection();
 }
 
+int Nng::SetReceiveTimeOut(const int millisecond) const {
+    return SetSocketReceiveTimeOut(socket, millisecond);
+}
+
 Nng::Nng() {
     socket = new nng_socket();
 }
@@ -135,48 +139,4 @@ const char * GetErrorString(const int rv) {
         return nng_strerror(rv);
     }
     return nullptr;
-}
-
-int send(const nng_socket *socket, const char *data, const size_t size) {
-    nng_msg* msg = nullptr;
-
-    // ReSharper disable once CppDFAMemoryLeak
-    int rv = nng_msg_alloc(&msg, 0);
-
-    if (rv != 0) {
-        // ReSharper disable once CppDFAMemoryLeak
-        return rv;
-    }
-
-    rv = nng_msg_append(msg, data, size);
-    if (rv != 0) {
-        nng_msg_free(msg);
-        return rv;
-    }
-
-    rv = nng_sendmsg(*socket, msg, NNG_FLAG_NONBLOCK);
-    nng_msg_free(msg);
-
-    return rv;
-}
-
-const char * GetReceiveMessage(const nng_socket *socket, const char *request, const int request_size) {
-    int rv = send(socket, request, request_size);
-    if (rv != 0) {
-        return nullptr;
-    }
-
-    char* response_msg = nullptr;
-    size_t response_size = 0;
-    rv = nng_recv(*socket, &response_msg, &response_size, NNG_FLAG_NONBLOCK | NNG_FLAG_ALLOC);
-    if (rv != 0) {
-        nng_free(response_msg, response_size);
-        return nullptr;
-    }
-    auto * response = new char[response_size + 1];
-    memcpy(response, response_msg, request_size);
-    response[request_size + 1] = '\0';
-
-    nng_free(response_msg, response_size);
-    return response;
 }

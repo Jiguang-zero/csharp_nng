@@ -9,6 +9,10 @@ set(MY_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/library")
 include_directories("${CMAKE_SOURCE_DIR}/include")
 link_directories("${MY_LIBRARY_DIR}/nng")
 
+add_executable(client_test nng_package.cpp client_test.cpp)
+target_link_libraries(client_test nng)
+
+# packaged_nng.dll
 add_definitions(-D_NNG_EXPORTS)
 add_library(packaged_nng SHARED nng_package.cpp)
 set_target_properties(packaged_nng PROPERTIES

@@ -31,6 +31,8 @@ public:
 
  ~Nng();
 
+ int SetReceiveTimeOut(int millisecond) const;
+
 private:
  Nng();
 
@@ -113,23 +115,5 @@ extern "C" NNG_API intptr_t GetResponseWithRequest(Nng * nng, const unsigned cha
  * @return const char*
  */
 extern "C" NNG_API const char* GetErrorString(int rv);
-
-/**
- * Send request with the length [size].
- * @param socket const nng_socket*
- * @param data
- * @param size
- * @return return the result of sending.
- */
-int send(const nng_socket* socket, const char* data, size_t size);
-
-/**
- *
- * @param socket
- * @param request
- * @param request_size  The size of request
- * @return
- */
-extern "C" NNG_API const char* GetReceiveMessage(const nng_socket* socket, const char* request, int request_size);
 
 #endif //NNG_PACKAGE_DLL_LIBRARY_H
