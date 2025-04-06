@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.29)
 project(nng_package_dll)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # Custom library dir
 set(MY_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/library")
@@ -9,12 +9,18 @@ set(MY_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/library")
 include_directories("${CMAKE_SOURCE_DIR}/include")
 link_directories("${MY_LIBRARY_DIR}/nng")
 
-add_executable(client_test nng_package.cpp client_test.cpp)
+add_executable(client_test nng_package.cpp client_test.cpp
+        util/logger/Logger.cpp
+        util/myDate/myDate.cpp
+)
 target_link_libraries(client_test nng)
 
 # packaged_nng.dll
 add_definitions(-D_NNG_EXPORTS)
-add_library(packaged_nng SHARED nng_package.cpp)
+add_library(packaged_nng SHARED nng_package.cpp
+        util/logger/Logger.cpp
+        util/myDate/myDate.cpp
+)
 set_target_properties(packaged_nng PROPERTIES
         LIBRARY_OUTPUT_NAME "packaged_nng"
 )
