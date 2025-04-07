@@ -38,6 +38,8 @@ public:
 private:
  Nng();
 
+ std::string url;
+
  // Any operation about socket.
  // Including connection, disconnection, send, receive and or so.
  std::mutex operationMutex;

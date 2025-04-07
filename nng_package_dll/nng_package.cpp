@@ -1,7 +1,9 @@
 #include "nng_package.h"
+#include "util/logger/Logger.h"
 
 #include <iostream>
 #include <nng/protocol/reqrep0/req.h>
+#include <exception>
 
 Nng * Nng::NewNngRequest(const char *url) {
     auto* instance = new Nng();
@@ -9,7 +11,7 @@ Nng * Nng::NewNngRequest(const char *url) {
         delete instance;
         return nullptr;
     }
-
+    instance->url = std::string(url);
     return instance;
 }
 
@@ -21,27 +23,32 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
     std::lock_guard<std::mutex> lock(operationMutex);
     char * response = nullptr;
     nng_msg *msg = nullptr;
+    LOG_LINE("request: " + std::string(reinterpret_cast<const char*>(request)));
 
     try {
+        int rv;
         // ReSharper disable once CppDFAMemoryLeak
-        if (nng_msg_alloc(&msg, 0) != 0) {
+        if (( rv = nng_msg_alloc(&msg, 0)) != 0) {
+            LOG_LINE(url + ": nng_msg_alloc failed: " + std::string(GetErrorString(rv)));
             // ReSharper disable once CppDFAMemoryLeak
             return nullptr;
         }
 
-        if (nng_msg_append(msg, request, requestSize) != 0) {
+        if ((rv = nng_msg_append(msg, request, requestSize)) != 0) {
+            LOG_LINE(url + ": nng_msg_append failed: " + std::string(GetErrorString(rv)));
             nng_msg_free(msg);
             // ReSharper disable once CppDFAMemoryLeak
             return nullptr;
         }
 
-        if (nng_sendmsg(*socket, msg, 0) != 0) {
+        if (( rv = nng_sendmsg(*socket, msg, 0)) != 0) {
+            LOG_LINE(url + ": nng_sendmsg failed: " + std::string(GetErrorString(rv)));
             nng_msg_free(msg);
             // ReSharper disable once CppDFAMemoryLeak
             return nullptr;
         }
 
-        if (nng_recvmsg(*socket, &msg, 0) == 0) {
+        if (( rv = nng_recvmsg(*socket, &msg, 0)) == 0) {
             const size_t len = nng_msg_len(msg);
             const void* body = nng_msg_body(msg);
 
@@ -49,15 +56,18 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
             response = new char[len + 1];
             memcpy(response, body, len);
             response[len] = '\0'; // 添加字符串结束符
+            LOG_LINE("get response: " + std::string(response));
             nng_msg_free(msg);
         } else {
+            LOG_LINE(url + ": nng_recvmsg failed: " + std::string(GetErrorString(rv)));
             nng_msg_free(msg);
         }
 
         // ReSharper disable once CppDFAMemoryLeak
         return response;
     }
-    catch (...) {
+    catch (std::exception ex) {
+        LOG_LINE(url + ": " + ex.what());
         //TODO: Log the error.
         nng_msg_free(msg);
         delete[] response;
@@ -67,12 +77,15 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
 
 bool Nng::StartRequestListening(const char *url) {
     std::lock_guard<std::mutex> lock(operationMutex);
-    if (nng_req0_open(socket) /* != 0 */) {
+    int rv;
+    if ((rv = nng_req0_open(socket)) != 0 ) {
+        LOG_LINE(std::string(url) + ": nng_req0_open failed: " + std::string(GetErrorString(rv)));
         CloseConnection();
         return false;
     }
     nng_dialer dialer{};
-    if (nng_dialer_create(&dialer, *socket, url) != 0) {
+    if ((rv = nng_dialer_create(&dialer, *socket, url)) != 0) {
+        LOG_LINE(std::string(url) + ": nng_dialer_create failed: " + std::string(GetErrorString(rv)));
         CloseConnection();
         return false;
     }
