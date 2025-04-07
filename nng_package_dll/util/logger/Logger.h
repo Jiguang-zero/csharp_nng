@@ -82,6 +82,9 @@ private:
         return LOG_PATH + "/" + LOG_FILE;
     }
 
+    // 是否开启log模式，默认开启
+    bool enableLog = true;
+
     bool showTime = true; // log into time
     std::ofstream outFile;
     // 互斥锁(线程安全)
@@ -114,6 +117,8 @@ public:
 
     // 默认追加模式，现在全部清空日志文件
     void clearContent();
+
+    void setEnableLog(bool flag);
 
 private:
     // 打开日志文件 流
@@ -163,6 +168,9 @@ void Logger::changeFilePath(IsStringOrLoggerFormat auto format, IsStringOrLogger
 
 // Set Log Path
 extern "C" NNG_API void ChangeLogPath(const char* filePath, const char* fileName);
+
+// Set Enable Log
+extern "C" NNG_API void SetLogEnable(bool flag);
 
 
 // 定义宏，方便使用

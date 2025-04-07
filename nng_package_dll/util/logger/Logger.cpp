@@ -42,6 +42,10 @@ void Logger::info(const std::string &message) {
 
     std::unique_lock lock(mtx);
     {
+        if (!enableLog) {
+            return;
+        }
+
         if (!outFile.is_open()) {
             start();
         }
@@ -128,7 +132,15 @@ void Logger::stop() {
     }
 }
 
+void Logger::setEnableLog(bool flag) {
+    enableLog = flag;
+}
+
 // extern "C"
 void ChangeLogPath(const char* filePath, const char* fileName) {
     Logger::changeFilePath(std::string(filePath), std::string(fileName));
+}
+
+void SetLogEnable(bool flag) {
+    Logger::getInstance()->setEnableLog(flag);
 }
