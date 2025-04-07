@@ -89,7 +89,7 @@ bool Nng::StartRequestListening(const char *url) {
         return false;
     }
     nng_dialer_start(dialer, NNG_FLAG_NONBLOCK);
-    LOG_LINE(this->url + " start request listening");
+    LOG_LINE(std::string(url) + " start request listening");
     return true;
 }
 
