@@ -4,6 +4,8 @@
 #include <mutex>
 #include <nng/nng.h>
 
+#include "extern_define.h"
+
 class Nng {
 public:
  // create a nng instance of request type.
@@ -43,15 +45,7 @@ private:
  nng_socket * socket;
 };
 
-#ifdef _WIN32
-    #ifdef _NNG_EXPORTS
-        #define NNG_API __declspec(dllexport)
-    #else
-        #define NNG_API __declspec(dllimport)
-    #endif
-#else
-    #define NNG_API
-#endif
+
 
 /**
  * connect url

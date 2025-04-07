@@ -7,6 +7,7 @@
 
 // Logger.h
 #include "../Singleton.h"
+#include "../../extern_define.h"
 
 #include <fstream>
 #include <string>
@@ -159,6 +160,9 @@ void Logger::changeFilePath(IsStringOrLoggerFormat auto format, IsStringOrLogger
     getInstance()->start();
 
 }
+
+// Set Log Path
+extern "C" NNG_API void ChangeLogPath(const char* filePath, const char* fileName);
 
 
 // 定义宏，方便使用

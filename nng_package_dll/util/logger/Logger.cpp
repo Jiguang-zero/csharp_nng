@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <filesystem>
+#include <string>
 
 #include "../myDate/myDate.h"
 
@@ -125,4 +126,9 @@ void Logger::stop() {
     if (outFile.is_open()) {
         std::cerr << "log/log.txt close failed." << std::endl;
     }
+}
+
+// extern "C"
+void ChangeLogPath(const char* filePath, const char* fileName) {
+    Logger::changeFilePath(std::string(filePath), std::string(fileName));
 }
