@@ -180,6 +180,9 @@ void Release(const Nng *nng) {
 }
 
 intptr_t GetResponseWithRequest(Nng *nng, const unsigned char *request, const int requestSize) {
+    if (!nng) {
+        return 0;
+    }
     auto * response = nng->SendRequestAndGetResponse(request, requestSize);
     if (!response) {
         return 0;
