@@ -121,7 +121,7 @@ extern "C" {
 	NNG_API void FreeMessage(const char* msg);
 
 	NNG_API void SetSendMaxTimeOut(Nng* nng, int millisecond);
-	NNG_API void SetReceiveMaxTimeOut(Nng* nng, int millisecond);
+	void SetReceiveMaxTimeOut(Nng* nng, int millisecond);
 }
 
 

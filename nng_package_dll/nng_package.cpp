@@ -185,6 +185,7 @@ void FreeMessage(const char *msg) {
 
 void SetSendMaxTimeOut(Nng* nng, int millisecond)
 {
+    if (!nng)   return;
     int rv = nng->SetSendTimeOut(millisecond);
     if (rv != 0) {
         LOG_LINE(nng->ShowUrl() + ": set send time out failed");
@@ -193,6 +194,7 @@ void SetSendMaxTimeOut(Nng* nng, int millisecond)
 
 NNG_API void SetReceiveMaxTimeOut(Nng* nng, int millisecond)
 {
+    if (!nng)   return;
     int rv = nng->SetReceiveTimeOut(millisecond);
     if (rv != 0) {
         LOG_LINE(nng->ShowUrl() + ": set receive time out failed");
