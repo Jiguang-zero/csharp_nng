@@ -8,6 +8,7 @@
 #include <sstream>
 #include <filesystem>
 #include <string>
+#include <cmath>
 
 #include "../myDate/myDate.h"
 
@@ -19,19 +20,32 @@ namespace utils {
     const LoggerFormat origin("origin", "");
 }
 
+std::string toNumberDigits(int number, int digit) {
+    // digit must be 3 or 2
+    std::ostringstream oss;
+    if (number < 10) {
+        oss << '0'; // 02, 09
+    }
+    if (digit == 3 && number < 100) {
+        oss << '0';
+    }
+    oss << number;
+    return oss.str();
+}
+
 std::string getFullTimeForLog() {
     std::ostringstream oss;
 
     const myDate date;
 
-    oss << std::to_string(date.getYear()) + ".";
-    oss << std::to_string(date.getMonth()) + ".";
-    oss << std::to_string(date.getDay()) + " ";
+    oss << toNumberDigits(date.getYear(), 2) + ".";
+    oss << toNumberDigits(date.getMonth(), 2) + ".";
+    oss << toNumberDigits(date.getDay(), 2) + " ";
 
-    oss << std::to_string(date.getHour()) + ":";
-    oss << std::to_string(date.getMinute()) + ":";
-    oss << std::to_string(date.getSecond()) + ".";
-    oss << std::to_string(date.getMillisecond()) + " ";
+    oss << toNumberDigits(date.getHour(), 2) + ":";
+    oss << toNumberDigits(date.getMinute(), 2) + ":";
+    oss << toNumberDigits(date.getSecond(), 2) + ".";
+    oss << toNumberDigits(date.getMillisecond(), 3) + " ";
 
     oss << date.getDow();
 

@@ -15,7 +15,7 @@ int myDate::dow(int year, const int month, const int day) {
 }
 
 std::string myDate::getDowString(const int day) {
-    static std::string days[7] = {"Sun.", "Mon.", "Tue.", "Wed.", "Thur.", "Fri.", "Sat."};
+    static std::string days[7] = {"Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."};
 
     if (day < 0 || day > 6) {
         return "";
