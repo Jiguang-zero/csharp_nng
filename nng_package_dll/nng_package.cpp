@@ -192,7 +192,7 @@ void SetSendMaxTimeOut(Nng* nng, int millisecond)
     }
 }
 
-NNG_API void SetReceiveMaxTimeOut(Nng* nng, int millisecond)
+void SetReceiveMaxTimeOut(Nng* nng, int millisecond)
 {
     if (!nng)   return;
     int rv = nng->SetReceiveTimeOut(millisecond);
