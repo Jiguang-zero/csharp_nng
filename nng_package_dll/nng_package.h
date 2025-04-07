@@ -34,6 +34,11 @@ public:
  ~Nng();
 
  int SetReceiveTimeOut(int millisecond);
+ int SetSendTimeOut(int millisecond);
+ int SetReConnectMinTime(int millisecond);
+ int SetReConnectMaxTime(int millisecond);
+
+ std::string ShowUrl() const;
 
 private:
  Nng();
@@ -48,21 +53,13 @@ private:
 };
 
 
-
-/**
- * connect url
- * @param url const char*
- * @return Pointer Address. nng_socket*
- */
-extern "C" NNG_API Nng *ConnectRequestSocket(const char *url);
-
 /**
  * Set sending timeout.
  * @param socket nng_socket*
  * @param milliseconds
  * @return return the result of setting sending timeout. 0 is success.
  */
-extern "C" NNG_API int SetSocketSendTimeOut(const nng_socket* socket, int milliseconds);
+int SetSocketSendTimeOut(const nng_socket* socket, int milliseconds);
 
 /**
  * Set receiving timeout.
@@ -70,7 +67,7 @@ extern "C" NNG_API int SetSocketSendTimeOut(const nng_socket* socket, int millis
  * @param milliseconds
  * @return return the result of setting receive timeout. 0 is success
  */
-extern "C" NNG_API int SetSocketReceiveTimeOut(const nng_socket* socket, int milliseconds);
+int SetSocketReceiveTimeOut(const nng_socket* socket, int milliseconds);
 
 /**
  * Set min reconnect time.
@@ -78,7 +75,7 @@ extern "C" NNG_API int SetSocketReceiveTimeOut(const nng_socket* socket, int mil
  * @param milliseconds
  * @return
  */
-extern "C" NNG_API int SetSocketReConnectMinTime(const nng_socket* socket, int milliseconds);
+int SetSocketReConnectMinTime(const nng_socket* socket, int milliseconds);
 
 /**
  * Set max reconnect time.
@@ -86,32 +83,46 @@ extern "C" NNG_API int SetSocketReConnectMinTime(const nng_socket* socket, int m
  * @param milliseconds
  * @return
  */
-extern "C" NNG_API int SetSocketReConnectMaxTime(const nng_socket* socket, int milliseconds);
+int SetSocketReConnectMaxTime(const nng_socket* socket, int milliseconds);
 
-/**
-/**
- * Close Connect
- * @param nng nng_socket*
- */
-extern "C" NNG_API void Release(const Nng *nng);
+extern "C" {
+	/**
+	 * connect url
+	 * @param url const char*
+	 * @return Pointer Address. nng_socket*
+	 */
+	NNG_API Nng* ConnectRequestSocket(const char* url);
 
-/**
- * Get response with the request.
- * @param nng
- * @param request
- * @param requestSize
- * @return intptr_t, which can cast to unsigned char*.
- */
-extern "C" NNG_API intptr_t GetResponseWithRequest(Nng * nng, const unsigned char* request, int requestSize);
 
-/**
- * We will get the result state when we call connect, bind, receive, send, etc...
- * The type of this state is integer. And we can call this function to see what does the state mean.
- * @param rv
- * @return const char*
- */
-extern "C" NNG_API const char* GetErrorString(int rv);
+	/**
+	/**
+	 * Close Connect
+	 * @param nng nng_socket*
+	 */
+	NNG_API void Release(const Nng* nng);
 
-extern "C" NNG_API void FreeMessage(const char* msg);
+	/**
+	 * Get response with the request.
+	 * @param nng
+	 * @param request
+	 * @param requestSize
+	 * @return intptr_t, which can cast to unsigned char*.
+	 */
+	NNG_API intptr_t GetResponseWithRequest(Nng* nng, const unsigned char* request, int requestSize);
+
+	/**
+	 * We will get the result state when we call connect, bind, receive, send, etc...
+	 * The type of this state is integer. And we can call this function to see what does the state mean.
+	 * @param rv
+	 * @return const char*
+	 */
+	NNG_API const char* GetErrorString(int rv);
+
+	NNG_API void FreeMessage(const char* msg);
+
+	NNG_API void SetSendMaxTimeOut(Nng* nng, int millisecond);
+	NNG_API void SetReceiveMaxTimeOut(Nng* nng, int millisecond);
+}
+
 
 #endif //NNG_PACKAGE_DLL_LIBRARY_H

@@ -111,6 +111,27 @@ int Nng::SetReceiveTimeOut(const int millisecond) {
     return SetSocketReceiveTimeOut(socket, millisecond);
 }
 
+int Nng::SetSendTimeOut(int millisecond)
+{
+    return SetSocketSendTimeOut(socket, millisecond);
+}
+
+int Nng::SetReConnectMinTime(int millisecond)
+{
+    return SetSocketReConnectMinTime(socket, millisecond);
+}
+
+int Nng::SetReConnectMaxTime(int millisecond)
+{
+    return SetSocketReConnectMaxTime(socket, millisecond);
+}
+
+std::string Nng::ShowUrl() const
+{
+    return url;
+}
+
+
 Nng::Nng() {
     socket = new nng_socket();
 }
@@ -160,4 +181,20 @@ const char * GetErrorString(const int rv) {
 
 void FreeMessage(const char *msg) {
     delete msg;
+}
+
+void SetSendMaxTimeOut(Nng* nng, int millisecond)
+{
+    int rv = nng->SetSendTimeOut(millisecond);
+    if (rv != 0) {
+        LOG_LINE(nng->ShowUrl() + ": set send time out failed");
+    }
+}
+
+NNG_API void SetReceiveMaxTimeOut(Nng* nng, int millisecond)
+{
+    int rv = nng->SetReceiveTimeOut(millisecond);
+    if (rv != 0) {
+        LOG_LINE(nng->ShowUrl() + ": set receive time out failed");
+    }
 }
