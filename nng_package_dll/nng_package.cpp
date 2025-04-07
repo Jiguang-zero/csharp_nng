@@ -75,31 +75,47 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
 }
 
 bool Nng::StartRequestListening(const char *url) {
-    std::lock_guard<std::mutex> lock(operationMutex);
-    int rv;
-    if ((rv = nng_req0_open(socket)) != 0 ) {
-        LOG_LINE(std::string(url) + ": nng_req0_open failed: " + std::string(GetErrorString(rv)));
-        CloseConnection();
+    try {
+        std::lock_guard<std::mutex> lock(operationMutex);
+        int rv;
+        if ((rv = nng_req0_open(socket)) != 0) {
+            LOG_LINE(std::string(url) + ": nng_req0_open failed: " + std::string(GetErrorString(rv)));
+            CloseConnection();
+            return false;
+        }
+        nng_dialer dialer{};
+        if ((rv = nng_dialer_create(&dialer, *socket, url)) != 0) {
+            LOG_LINE(std::string(url) + ": nng_dialer_create failed: " + std::string(GetErrorString(rv)));
+            CloseConnection();
+            return false;
+        }
+        if ((rv = nng_dialer_start(dialer, 0)) != 0) {
+            LOG_LINE(std::string(url) + ": nng_dialer_start failed: " + std::string(GetErrorString(rv)));
+            CloseConnection();
+            return false;
+        }
+        LOG_LINE(std::string(url) + " is listening");
+        return true;
+    }
+    catch (std::exception e) {
+        LOG_LINE(std::string(url) + " exception happened when trying to start requestListening: " + e.what());
         return false;
     }
-    nng_dialer dialer{};
-    if ((rv = nng_dialer_create(&dialer, *socket, url)) != 0) {
-        LOG_LINE(std::string(url) + ": nng_dialer_create failed: " + std::string(GetErrorString(rv)));
-        CloseConnection();
-        return false;
-    }
-    nng_dialer_start(dialer, NNG_FLAG_NONBLOCK);
-    LOG_LINE(std::string(url) + " start request listening");
-    return true;
 }
 
 void Nng::CloseConnection() {
-    std::lock_guard<std::mutex> lock(operationMutex);
-    if (socket) {
-        nng_socket_close(*socket);
+    try {
+        std::lock_guard<std::mutex> lock(operationMutex);
+        if (socket) {
+            nng_socket_close(*socket);
 
-        LOG_LINE(this->url + " close connection");
-        delete socket;
+            LOG_LINE(this->url + " close connection");
+            delete socket;
+        }
+    }
+    catch (std::exception e) {
+        LOG << this->url << " " << "exception happened trying to close connection";
+        LOG << e.what() << utils::endl;
     }
 }
 
@@ -188,7 +204,10 @@ void SetSendMaxTimeOut(Nng* nng, int millisecond)
     if (!nng)   return;
     int rv = nng->SetSendTimeOut(millisecond);
     if (rv != 0) {
-        LOG_LINE(nng->ShowUrl() + ": set send time out failed");
+        LOG_LINE(nng->ShowUrl() + ": set send time out failed " + GetErrorString(rv));
+    }
+    else {
+        LOG_LINE(nng->ShowUrl() + ": set send time out: " + std::to_string(millisecond));
     }
 }
 
@@ -197,6 +216,9 @@ void SetReceiveMaxTimeOut(Nng* nng, int millisecond)
     if (!nng)   return;
     int rv = nng->SetReceiveTimeOut(millisecond);
     if (rv != 0) {
-        LOG_LINE(nng->ShowUrl() + ": set receive time out failed");
+        LOG_LINE(nng->ShowUrl() + ": set receive time out failed " + GetErrorString(rv));
+    }
+    else {
+        LOG_LINE(nng->ShowUrl() + ": set receive time out: " + std::to_string(millisecond));
     }
 }
