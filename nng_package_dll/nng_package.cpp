@@ -23,7 +23,7 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
     std::lock_guard<std::mutex> lock(operationMutex);
     char * response = nullptr;
     nng_msg *msg = nullptr;
-    LOG_LINE("request: " + std::string(reinterpret_cast<const char*>(request)));
+    LOG_LINE(url + ": request: " + std::string(reinterpret_cast<const char*>(request)));
 
     try {
         int rv;
@@ -52,11 +52,10 @@ char * Nng::SendRequestAndGetResponse(const unsigned char *request, const int re
             const size_t len = nng_msg_len(msg);
             const void* body = nng_msg_body(msg);
 
-            // 分配内存并复制响应内容
             response = new char[len + 1];
             memcpy(response, body, len);
-            response[len] = '\0'; // 添加字符串结束符
-            LOG_LINE("get response: " + std::string(response));
+            response[len] = '\0';
+            LOG_LINE(url + ": get response: " + std::string(response));
             nng_msg_free(msg);
         } else {
             LOG_LINE(url + ": nng_recvmsg failed: " + std::string(GetErrorString(rv)));
@@ -90,6 +89,7 @@ bool Nng::StartRequestListening(const char *url) {
         return false;
     }
     nng_dialer_start(dialer, NNG_FLAG_NONBLOCK);
+    LOG_LINE(this->url + " start request listening");
     return true;
 }
 
@@ -97,6 +97,8 @@ void Nng::CloseConnection() {
     std::lock_guard<std::mutex> lock(operationMutex);
     if (socket) {
         nng_socket_close(*socket);
+
+        LOG_LINE(this->url + " close connection");
         delete socket;
     }
 }
@@ -115,7 +117,7 @@ Nng::Nng() {
 
 Nng *ConnectRequestSocket(const char *url) {
     auto * nng = Nng::NewNngRequest(url);
-    nng->SetReceiveTimeOut(5000);
+    //nng->SetReceiveTimeOut(5000);
 
     return nng;
 }
