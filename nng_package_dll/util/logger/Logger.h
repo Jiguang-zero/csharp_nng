@@ -97,7 +97,7 @@ public:
     Logger &operator <<(const utils::LoggerFormat& format) const;
 
     // 新的日志路径以及名字
-    void static changeFilePath(FilePath auto format, FilePath auto name);
+    void static changeFilePath(FilePath auto path, FilePath auto name);
 
     void writeLine(const std::string& message);
 
@@ -134,15 +134,15 @@ private:
     void info(const std::string& message);
 };
 
-void Logger::changeFilePath(IsStringOrLoggerFormat auto format, IsStringOrLoggerFormat auto name) {
+void Logger::changeFilePath(FilePath auto path, FilePath auto name) {
     bool flag = false;
-    if (std::is_same_v<utils::LoggerFormat, decltype(format)>) {
-        if (format != utils::origin) {
+    if (std::is_same_v<utils::LoggerFormat, decltype(path)>) {
+        if (path != utils::origin) {
             std::cerr << "invalid parameters" << std::endl;
             LOG_PATH = "log";
         }
     } else {
-        LOG_PATH = name;
+        LOG_PATH = path;
         flag = true;
     }
     if (std::is_same_v<utils::LoggerFormat, decltype(name)>) {
