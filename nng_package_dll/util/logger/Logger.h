@@ -136,7 +136,7 @@ private:
 
 void Logger::changeFilePath(FilePath auto path, FilePath auto name) {
     bool flag = false;
-    if (std::is_same_v<utils::LoggerFormat, decltype(path)>) {
+    if constexpr (std::is_same_v<utils::LoggerFormat, decltype(path)>) {
         if (path != utils::origin) {
             std::cerr << "invalid parameters" << std::endl;
             LOG_PATH = "log";
@@ -145,7 +145,7 @@ void Logger::changeFilePath(FilePath auto path, FilePath auto name) {
         LOG_PATH = path;
         flag = true;
     }
-    if (std::is_same_v<utils::LoggerFormat, decltype(name)>) {
+    if constexpr (std::is_same_v<utils::LoggerFormat, decltype(name)>) {
         if (name != utils::origin) {
             std::cerr << "invalid parameters" << std::endl;
             LOG_FILE = "log.log";

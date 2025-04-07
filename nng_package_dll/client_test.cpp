@@ -18,7 +18,7 @@ int main() {
 }
 
 void testLog() {
-    Logger::changeFilePath(utils::origin, "nng.log");
+    Logger::changeFilePath(utils::origin, utils::origin);
     LOG << "Test" << utils::endl;
     LOG_LINE("hello");
 }
